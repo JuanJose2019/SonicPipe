@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
-import 'pages/home_page.dart';
-import 'pages/playlists_page.dart';
-import 'pages/albums_page.dart';
-import 'pages/settings_page.dart';
+import 'package:provider/provider.dart';
+
+// Theme
+import 'core/theme/theme_notifier.dart';
+
+// Paginas
+import 'presentation/pages/home_page.dart';
+import 'presentation/pages/playlists_page.dart';
+import 'presentation/pages/albums_page.dart';
+import 'presentation/pages/settings_page.dart';
 
 void main() {
-  runApp(const MusicApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(),
+      child: const MusicApp(),
+    ),
+  );
 }
 
 class MusicApp extends StatelessWidget {
@@ -13,9 +24,14 @@ class MusicApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: NavigationState(),
+    return Consumer<ThemeNotifier>(
+      builder: (context, theme, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: theme.currentTheme,
+          home: const NavigationState(),
+        );
+      },
     );
   }
 }
