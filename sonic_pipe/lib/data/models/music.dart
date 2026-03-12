@@ -11,6 +11,8 @@ class Song {
   final String title;
   final int duration;
   final String streamUrl;
+  final String? artist;
+  final String? coverUrl; // Optional cover URL
 
-  Song(this.id, this.title, this.duration, this.streamUrl);
+  Song(this.id, this.title, this.duration, this.streamUrl, {this.artist, this.coverUrl});
 }

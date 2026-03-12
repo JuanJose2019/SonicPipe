@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../data/datasources/remote/remote_song_datasource.dart';
+import '../../data/datasources/remote/navidrome_controller.dart';
 import '../../data/models/music.dart';
 import 'songs_page.dart';
 

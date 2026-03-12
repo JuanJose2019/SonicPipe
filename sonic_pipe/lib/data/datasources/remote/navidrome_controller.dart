@@ -14,7 +14,7 @@ class SonicWave {
   // ------ MD5 -------
   String md5hash(String input) {
     final bytes = utf8.encode(input);
-    final digest = md5.convert(bytes);  // ← AQUÍ ESTÁ LA CLAVE
+    final digest = md5.convert(bytes); // ← AQUÍ ESTÁ LA CLAVE
     return digest.toString();
   }
 
@@ -90,7 +90,9 @@ class SonicWave {
   // ============= API: TODAS LAS CANCIONES =============
   Future<List<Song>> fetchAllSongs() async {
     final url = Uri.parse(
-      "${baseUrl}getSongList2.view?u=$user&t=$token&s=$salt&v=1.16.1&c=flutterapp&f=json&type=all&size=1000",
+      "${baseUrl}search3.view"
+      "?u=$user&t=$token&s=$salt&v=1.16.1&c=flutterapp&f=json"
+      "&query=&songCount=5000&songOffset=0",
     );
 
     final response = await http.get(url);
@@ -102,21 +104,24 @@ class SonicWave {
     final data = json.decode(response.body);
 
     final songsJson =
-        data["subsonic-response"]["songList"]["song"] as List<dynamic>;
+        data["subsonic-response"]["searchResult3"]["song"] as List<dynamic>?;
 
-    List<Song> songs = [];
+    if (songsJson == null) {
+      return []; // evitar crash
+    }
 
-    for (var item in songsJson) {
+    return songsJson.map((item) {
       final id = item["id"];
       final title = item["title"];
       final duration = item["duration"];
+      final artist = item["artist"];
+      final coverArt = item["coverArt"];
 
       final streamUrl =
           "${baseUrl}stream.view?u=$user&t=$token&s=$salt&v=1.16.1&c=flutterapp&f=json&id=$id";
 
-      songs.add(Song(id, title, duration, streamUrl));
-    }
-
-    return songs;
+      return Song(id, title, duration, streamUrl, artist: artist, coverUrl: coverArt != null ? "${baseUrl}getCoverArt.view?u=$user&t=$token&s=$salt&v=1.16.1&c=flutterapp&f=json&id=$coverArt&size=300&square=true" : null);
+    }).toList();
   }
 }
+
