@@ -1,15 +1,25 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/music.dart';
 
 class SonicWave {
-  final String baseUrl = "https://fzadn4b7337sji7vjplacr2gn4.srv.us/rest/";
+  String baseUrl = "https://fzadn4b7337sji7vjplacr2gn4.srv.us/rest/";
   final String user = "Fran";
   final String password = "Putas";
   final String salt = "7f161e";
 
   SonicWave();
+
+  Future<void> _initBaseUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    baseUrl = prefs.getString('server_url') ?? "https://fzadn4b7337sji7vjplacr2gn4.srv.us/rest/";
+    // Make sure it ends with a slash if needed by how it's appended, or just trust the user. Usually just appending is fine.
+    if (!baseUrl.endsWith('/')) {
+      baseUrl += '/';
+    }
+  }
 
   // ------ MD5 -------
   String md5hash(String input) {
@@ -23,6 +33,7 @@ class SonicWave {
 
   // ============= API: ÁLBUMES =============
   Future<List<Album>> fetchAlbums() async {
+    await _initBaseUrl();
     final url = Uri.parse(
       "${baseUrl}getAlbumList.view"
       "?u=$user&t=$token&s=$salt&v=1.16.1&c=flutterapp&f=json&type=newest&size=100",
@@ -56,6 +67,7 @@ class SonicWave {
 
   // ============= API: CANCIONES DE UN ÁLBUM =============
   Future<List<Song>> fetchSongs(String albumId) async {
+    await _initBaseUrl();
     final url = Uri.parse(
       "${baseUrl}getAlbum.view?u=$user&t=$token&s=$salt&v=1.16.1&c=flutterapp&f=json&id=$albumId",
     );
@@ -89,6 +101,7 @@ class SonicWave {
 
   // ============= API: TODAS LAS CANCIONES =============
   Future<List<Song>> fetchAllSongs() async {
+    await _initBaseUrl();
     final url = Uri.parse(
       "${baseUrl}search3.view"
       "?u=$user&t=$token&s=$salt&v=1.16.1&c=flutterapp&f=json"
